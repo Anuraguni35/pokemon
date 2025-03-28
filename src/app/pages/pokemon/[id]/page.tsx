@@ -59,6 +59,8 @@ function PokemonDetailedView() {
               src={pokemonData.image}
               alt="Pokemon"
               className="h-full w-full "
+              width={100}
+              height={200}
             />
             <span className="uppercase bg-blue-700 p-2 text-white rounded-2xl mt-2">{id}</span>
           </div>
