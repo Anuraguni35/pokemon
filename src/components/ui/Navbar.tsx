@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { url } from "inspector";
+ 
 import PokemonLogo from "../../../public/PokemonLogo.png";
 function Navbar() {
   return (
