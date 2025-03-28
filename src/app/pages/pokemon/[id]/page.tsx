@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 import Navbar from "@/components/ui/Navbar";
+ import Image from "next/image";
 function PokemonDetailedView() {
   const params = useParams();
   const id = params.id as string;
@@ -18,6 +19,7 @@ function PokemonDetailedView() {
 
   useEffect(() => {
     fetchPokemonDetails();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -28,6 +30,7 @@ function PokemonDetailedView() {
     try {
       const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
     
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setPokemonData((prevState: any) => ({
         ...prevState,
         image: res.data?.sprites?.other?.dream_world?.front_default,
@@ -52,7 +55,7 @@ function PokemonDetailedView() {
       :<div className="h-[90vh] flex ">
         <div className=" h-full w-[50%] p-5 flex  ">
           <div className="  m-5 rounded-2xl shadow-lg bg-[#f2f2f2] p-10">
-            <img
+            <Image
               src={pokemonData.image}
               alt="Pokemon"
               className="h-full w-full "
