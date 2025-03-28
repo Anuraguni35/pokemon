@@ -1,103 +1,148 @@
-import Image from "next/image";
+"use client";
+import Navbar from "@/components/ui/Navbar";
+import axios from "axios";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 
-export default function Home() {
+
+
+function Home() {
+  const [pokemonData, setPokemonData] = useState<any[]>([]);
+  const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [visibleData, setVisibleData] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 20;
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `https://pokeapi.co/api/v2/pokemon?limit=10000&offset=0`
+      );
+      const fetchedData = response.data.results;
+      setPokemonData(fetchedData);
+      setFilteredData(fetchedData);
+
+      setVisibleData(fetchedData.slice(0, itemsPerPage));
+      setPage(1);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      const filtered = pokemonData.filter((pokemon) =>
+        pokemon.name.toLowerCase().includes(debouncedQuery.toLowerCase())
+      );
+      setFilteredData(filtered);
+      // Reset visible data to first page when search changes
+      setVisibleData(filtered.slice(0, itemsPerPage));
+      setPage(1);
+    } else {
+      setFilteredData(pokemonData);
+      setVisibleData(pokemonData.slice(0, itemsPerPage));
+      setPage(1);
+    }
+  }, [debouncedQuery, pokemonData]);
+
+  const loadMoreData = () => {
+   
+
+    const nextPage = page + 1;
+    const startIndex = page * itemsPerPage;
+    const endIndex = nextPage * itemsPerPage;
+    const newItems = filteredData.slice(startIndex, endIndex);
+
+    setVisibleData((prev) => [...prev, ...newItems]);
+    setPage(nextPage);
+
+ 
+  };
+
+  const hasMoreData = page * itemsPerPage < filteredData.length;
+   
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <div className="bg-[#f0f0f099] h-screen">
+      <Navbar />
+      <div className="p-4">
+        <input
+          type="text"
+          placeholder="Search Pokémon..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="p-2 border border-gray-300 rounded-md w-full  focus:border-blue-500 focus:outline-none focus:ring focus:ring-blue-200 transition duration-200 ease-in-out "
         />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {loading ? (
+        <div className="flex justify-center items-center h-[80vh]">
+          <p className="text-center text-gray-600 my-4 animate-pulse border w-[80vw] p-4 rounded-md bg-white shadow-md">
+            Loading Pokémon data...
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      ) : (
+        <InfiniteScroll
+          dataLength={visibleData.length}
+          next={loadMoreData}
+          hasMore={hasMoreData}
+          loader={
+            <div
+                 
+                className="p-5 bg-white rounded-l-3xl rounded-r-md shadow-md flex justify-between items-center mb-2 mx-5 "
+              >
+                <p className="text-lg font-semibold">
+                   
+                </p>
+                 
+                 <div>
+
+                 </div>
+              </div>
+          }
+          endMessage={
+            <div className="px-10">
+              <p className="text-center self-center text-gray-600 my-4  border w-full p-4 rounded-md bg-white shadow-md">
+                🎉 No more Pokémon to load!
+              </p>
+            </div>
+          }
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <div className="flex flex-col gap-2 py-2 mx-2 bg-[#f0f0f099]">
+            {visibleData.map((pokemon, index) => (
+              <div
+                key={`${pokemon.name}-${index}`}
+                className="p-5 bg-white rounded-l-3xl rounded-r-md shadow-md flex justify-between items-center mb-2 mx-5 "
+              >
+                <p className="text-lg font-semibold">
+                  {pokemon.name.toUpperCase()}
+                </p>
+                <Link className="text-blue-600" href={`pages/pokemon/${pokemon.name}`}>View Details</Link>
+              </div>
+            ))}
+          </div>
+        </InfiniteScroll>
+      )}
     </div>
   );
 }
+
+
+export default Home;
