@@ -8,7 +8,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 
 type Pokemon = {
   name: string;
-  url: string;
+ 
 };
 function Home() {
    
