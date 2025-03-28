@@ -7,7 +7,14 @@ import Image from "next/image";
 function PokemonDetailedView() {
   const params = useParams();
   const id = params.id as string;
-  const [pokemonData, setPokemonData] = useState({
+  const [pokemonData, setPokemonData] = useState<{
+    image: string;
+    abilities: { ability: { name: string } }[];
+    type: { type: { name: string } }[];
+    stats: { stat: { name: string }; base_stat: number }[];
+    moves: { move: { name: string } }[];
+    name: string;
+  }>({
     image: "",
     abilities: [],
     type: [],
