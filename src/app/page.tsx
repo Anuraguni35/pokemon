@@ -6,14 +6,17 @@ import React, { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 
-
+type Pokemon = {
+  name: string;
+  url: string;
+};
 function Home() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [pokemonData, setPokemonData] = useState<any[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [filteredData, setFilteredData] = useState<any[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [visibleData, setVisibleData] = useState<any[]>([]);
+   
+  const [pokemonData, setPokemonData] = useState<Pokemon[]>([]);
+ 
+  const [filteredData, setFilteredData] = useState<Pokemon[]>([]);
+  
+  const [visibleData, setVisibleData] = useState<Pokemon[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [loading, setLoading] = useState(true);
