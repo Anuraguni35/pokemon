@@ -11,10 +11,8 @@ type Pokemon = {
  
 };
 function Home() {
-   
-  return (
-    <div>
-      "event": {
+
+  const json= {
     "name": "Holi Madness 🎨🔥",
     "type": "Daruuu... Attack Party 💥",
     "festival": "Holi 🌈",
@@ -41,7 +39,10 @@ function Home() {
     "Friends allowed. Enemies… optional 😏"
   ]
 });
-    </div>
+  return (
+    <div>
+      "event":{json}
+    </div>)
 }
 
 
